@@ -8,63 +8,84 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun PortfolioApp() {
+    // State to track which screen is currently selected
     var selectedScreen by remember {
-        mutableStateOf(eu.tutorials.portfolioapp.Screen.Home)
+        mutableStateOf(Screen.Home)
     }
 
+    ProfileHeader()
+
+    // Main app scaffold with bottom navigation
     Scaffold(
-        bottomBar = { BottomNavigationBar(selectedScreen) { selectedScreen = it } }
+        bottomBar = {
+            BottomNavigationBar(
+                selectedScreen = selectedScreen,
+                onScreenSelected = { selectedScreen = it }
+            )
+        }
     ) { paddingValues ->
+        // Main content column
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Profile header stays consistent across all screens
             ProfileHeader()
+
+            // Show the appropriate screen based on selection
             when (selectedScreen) {
-                eu.tutorials.portfolioapp.Screen.Home -> HomeScreen()
-                eu.tutorials.portfolioapp.Screen.Projects -> ProjectsScreen()
-                eu.tutorials.portfolioapp.Screen.Skills -> SkillScreen()
-                eu.tutorials.portfolioapp.Screen.Contact -> ContactScreen()
-                else -> {}
+                Screen.Home -> HomeScreen()
+                Screen.Projects -> ProjectsScreen()
+                Screen.Skills -> SkillScreen()
+                Screen.Contact -> ContactScreen()
             }
         }
     }
 }
 
-
 @Composable
-fun BottomNavigationBar(selectedScreen: Screen, onScreenSelected: (Screen) -> Unit) {
+fun BottomNavigationBar(
+    selectedScreen: Screen,
+    onScreenSelected: (Screen) -> Unit
+) {
     NavigationBar {
+        // Home navigation item
         NavigationBarItem(
-            selected = selectedScreen == eu.tutorials.portfolioapp.Screen.Home,
-            onClick = { onScreenSelected(eu.tutorials.portfolioapp.Screen.Home) },
+            selected = selectedScreen == Screen.Home,
+            onClick = { onScreenSelected(Screen.Home) },
             icon = { Icon(painterResource(id = R.drawable.ic_home), contentDescription = "Home") },
             label = { Text("Home") }
         )
+
+        // Projects navigation item
         NavigationBarItem(
-            selected = selectedScreen == eu.tutorials.portfolioapp.Screen.Projects,
-            onClick = { onScreenSelected(eu.tutorials.portfolioapp.Screen.Projects) },
+            selected = selectedScreen == Screen.Projects,
+            onClick = { onScreenSelected(Screen.Projects) },
             icon = { Icon(painterResource(id = R.drawable.ic_projects), contentDescription = "Projects") },
             label = { Text("Projects") }
         )
+
+        // Skills navigation item
         NavigationBarItem(
-            selected = selectedScreen == eu.tutorials.portfolioapp.Screen.Skills,
-            onClick = { onScreenSelected(eu.tutorials.portfolioapp.Screen.Skills) },
+            selected = selectedScreen == Screen.Skills,
+            onClick = { onScreenSelected(Screen.Skills) },
             icon = { Icon(painterResource(id = R.drawable.ic_skills), contentDescription = "Skills") },
             label = { Text("Skills") }
         )
+
+        // Contact navigation item
         NavigationBarItem(
-            selected = selectedScreen == eu.tutorials.portfolioapp.Screen.Contact,
-            onClick = { onScreenSelected(eu.tutorials.portfolioapp.Screen.Contact) },
+            selected = selectedScreen == Screen.Contact,
+            onClick = { onScreenSelected(Screen.Contact) },
             icon = { Icon(painterResource(id = R.drawable.ic_contact), contentDescription = "Contact") },
             label = { Text("Contact") }
         )
@@ -72,32 +93,55 @@ fun BottomNavigationBar(selectedScreen: Screen, onScreenSelected: (Screen) -> Un
 }
 
 
-@Composable
-fun ProfileHeader() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
 
-        // Profile Picture using Image instead of Icon
-        Image(
-            painter = painterResource(id = R.drawable.ic_person1), // Ensure the image is in res/drawable
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(180.dp)
-                .clip(CircleShape)
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(text = "ABC XYZ", fontSize = 32.sp)
-        Text(text = "App Developer", fontSize = 18.sp)
-    }
+// Simple enum to represent different screens
+enum class Screen {
+    Home, Projects, Skills, Contact
 }
 
+@Composable
+fun ProfileHeader() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Profile Picture
+            Image(
+                painter = painterResource(id = R.drawable.ic_person1),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+            )
 
-enum class Screen {
-    Home, Projects, Contact , Skills
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Name with slightly larger, bolder text
+            Text(
+                text = "John Doe",
+                fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+
+            // Job title
+            Text(
+                text = "Android Developer",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 }

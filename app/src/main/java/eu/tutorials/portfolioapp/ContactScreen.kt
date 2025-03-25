@@ -1,5 +1,6 @@
 package eu.tutorials.portfolioapp
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,108 +10,82 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun ContactScreen() {
-    var contacts by remember {
-        mutableStateOf(
-            listOf(
-                ContactData(R.drawable.ic_email, "Email", "example@email.com"),
-                ContactData(R.drawable.ic_phone, "Phone", "+123 456 7890"),
-                ContactData(R.drawable.ic_linkedin, "LinkedIn", "https://linkedin.com/in/yourprofile"),
-                ContactData(R.drawable.ic_git, "GitHub", "https://github.com/yourprofile")
-            )
-        )
-    }
+    val contacts = listOf(
+        Contact(Icons.Default.Email, "Email", "johndoe@gmail.com"),
+        Contact(Icons.Default.Phone, "Phone", "+1 123 456 7890"),
+        Contact(Icons.Default.Share, "LinkedIn", "linkedin.com/in/johndoe"),
+        Contact(Icons.Default.List, "GitHub", "github.com/johndoe")
+    )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.Start
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Contact Me",
-            fontSize = 24.sp,
-            modifier = Modifier.padding(bottom = 12.dp),
-            color = MaterialTheme.colorScheme.primary)
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(contacts) { contact ->
-                ContactCard(contact) { updatedText ->
-                    contacts = contacts.map {
-                        if (it.label == contact.label) it.copy(value = updatedText) else it
-                    }
-                }
-            }
+        item {
+            Text(
+                text = "Contact Me",
+                fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        items(contacts) { contact ->
+            ContactCard(contact)
         }
     }
 }
 
-// Data class for Contact Information
-data class ContactData(val icon: Int, val label: String, var value: String)
+data class Contact(val icon: ImageVector, val label: String, val value: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContactCard(contact: ContactData, onTextChange: (String) -> Unit) {
-    var isEditing by remember { mutableStateOf(false) }
-    var inputText by remember { mutableStateOf(contact.value) }
+fun ContactCard(contact: Contact) {
+    var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { isEditing = true },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        onClick = { expanded = !expanded },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .animateContentSize()
         ) {
             Icon(
-                painter = painterResource(id = contact.icon),
-                contentDescription = contact.label,
-                modifier = Modifier.size(24.dp)
+                contact.icon,
+                contentDescription = null,
+                modifier = Modifier.padding(16.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = contact.label, fontSize = 14.sp, color = Color.Gray)
-                if (isEditing) {
-                    TextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default,
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Black
-                        )
+                Text(
+                    text = contact.label,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(top = 16.dp, end = 16.dp)
+                )
+                if (expanded) {
+                    Text(
+                        text = contact.value,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 8.dp, end = 16.dp, bottom = 16.dp)
                     )
-                } else {
-                    Text(text = inputText, fontSize = 16.sp, color = Color.Black)
                 }
-            }
-
-            IconButton(
-                onClick = {
-                    if (isEditing) onTextChange(inputText)
-                    isEditing = !isEditing
-                }
-            ) {
-                Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = Color.Black)
             }
         }
     }

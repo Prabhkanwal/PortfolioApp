@@ -4,9 +4,11 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -16,88 +18,103 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Data class for skill information
+data class SkillData(@DrawableRes val icon: Int, val name: String, val level: Float = 0.75f)
+
 @Composable
 fun SkillScreen() {
+    // Skills data with initial values
     var skills by remember {
         mutableStateOf(
             listOf(
-                SkillItemData(R.drawable.ic_custom_skill, "Kotlin"),
-                SkillItemData(R.drawable.ic_custom_skill, "Jetpack Compose"),
-                SkillItemData(R.drawable.ic_custom_skill, "UI/UX"),
-                SkillItemData(R.drawable.ic_custom_skill, "Java"),
-                SkillItemData(R.drawable.ic_custom_skill, "C++"),
-                SkillItemData(R.drawable.ic_custom_skill, "Marketing")
+                SkillData(R.drawable.ic_custom_skill, "Kotlin", 0.9f),
+                SkillData(R.drawable.ic_custom_skill, "Jetpack Compose", 0.85f),
+                SkillData(R.drawable.ic_custom_skill, "Android", 0.8f),
+                SkillData(R.drawable.ic_custom_skill, "UI/UX", 0.7f),
+                SkillData(R.drawable.ic_custom_skill, "Java", 0.75f),
+                SkillData(R.drawable.ic_custom_skill, "Git", 0.8f)
             )
         )
     }
-    var showDialog by remember { mutableStateOf(false) }
-    var newSkillName by remember { mutableStateOf(TextFieldValue("")) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start
+    // State for add skill dialog
+    var showAddSkillDialog by remember { mutableStateOf(false) }
+    var newSkillName by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Section title
+        Text(
+            text = "My Skills",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Grid of skills - easier to understand than chunking in a lazy column
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = "My Skills : ",
-                fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                itemsIndexed(skills.chunked(3)) { _, rowItems ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        rowItems.forEach { skill ->
-                            SkillItem(skill.imageRes, skill.title)
-                        }
-                    }
-                }
+            items(skills) { skill ->
+                SkillCard(skill)
             }
         }
 
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        // Add skill button at the bottom
+        Button(
+            onClick = { showAddSkillDialog = true },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Project", tint = Color.White)
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Skill",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Add New Skill")
         }
     }
 
-    if (showDialog) {
+    // Add skill dialog
+    if (showAddSkillDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showAddSkillDialog = false },
             title = { Text("Add New Skill") },
             text = {
-                OutlinedTextField(
-                    value = newSkillName,
-                    onValueChange = { newSkillName = it },
-                    label = { Text("Skill Name") },
-                    singleLine = true
-                )
+                Column {
+                    OutlinedTextField(
+                        value = newSkillName,
+                        onValueChange = { newSkillName = it },
+                        label = { Text("Skill Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        if (newSkillName.text.isNotBlank()) {
-                            skills = skills + SkillItemData(R.drawable.ic_custom_skill, newSkillName.text)
-                            newSkillName = TextFieldValue("")
-                            showDialog = false
+                        if (newSkillName.isNotBlank()) {
+                            // Add new skill with default values
+                            skills = skills + SkillData(
+                                R.drawable.ic_custom_skill,
+                                newSkillName
+                            )
+                            newSkillName = ""
+                            showAddSkillDialog = false
                         }
                     }
                 ) {
@@ -105,7 +122,7 @@ fun SkillScreen() {
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(onClick = { showAddSkillDialog = false }) {
                     Text("Cancel")
                 }
             }
@@ -114,30 +131,59 @@ fun SkillScreen() {
 }
 
 @Composable
-fun SkillItem(@DrawableRes imageRes: Int, skillTitle: String) {
-    Column(
-        modifier = Modifier
-            .size(110.dp) // Circular skill card
-            .clip(CircleShape)
-            .background(Color(0xFFF5F5F5)) // Light gray background
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+fun SkillCard(skill: SkillData) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            modifier = Modifier
-                .size(50.dp)
-                .clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = skillTitle,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Skill icon in a circle
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = skill.icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Skill name
+            Text(
+                text = skill.name,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Skill level indicator
+            LinearProgressIndicator(
+                progress = skill.level,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+
+            // Skill level as percentage
+            Text(
+                text = "${(skill.level * 100).toInt()}%",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }
-
-data class SkillItemData(@DrawableRes val imageRes: Int, val title: String)
