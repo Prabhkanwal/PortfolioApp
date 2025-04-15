@@ -57,16 +57,16 @@ DevPortfolio is a modern, clean Android application designed to showcase develop
 ## Screenshots
 
 ### Contact Information Screen
-![Contact Screen](screenshots/contact_screen.png)
+![Contact Screen](screenshots/contact_screen.jpg)
 
 ### Skills Showcase
-![Skills Screen](screenshots/skills_screen.png)
+![Skills Screen](screenshots/skills_screen.jpg)
 
 ### Projects Portfolio
-![Projects Screen](screenshots/projects_screen.png)
+![Projects Screen](screenshots/projects_screen.jpg)
 
 ### Profile & Education
-![Profile Screen](screenshots/profile_screen.png)
+![Profile Screen](screenshots/profile_screen.jpg)
 
 ## Setup and Installation
 
