@@ -96,6 +96,6 @@ git clone https://github.com/yourusername/devportfolio.git
 
 ## Contact
 For any inquiries or contributions, please contact me at:
-- Email: johndoe@gmail.com
+- Email: prabhkanwal33@gmail.com
 - LinkedIn: linkedin.com/in/johndoe
 - GitHub: github.com/johndoe
